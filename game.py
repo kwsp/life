@@ -42,24 +42,26 @@ def tick(grid: np.ndarray) -> np.ndarray:
     return new_grid
 
 
-def game():
+def game(x_dim=20, y_dim=20):
     import time
+    import curses
     from curses import wrapper
 
-    X = 20
-    Y = 20
-
     def curse_main(stdscr):
-
-        grid = np.random.randint(0, 2, (X, Y)).astype(bool)
-        s_grid = np.tile(" ", (X, Y))  # for printing
+        curses.noecho()
+        grid = np.random.randint(0, 2, (x_dim, y_dim)).astype(bool)
+        s_grid = np.tile(" ", (x_dim, y_dim))  # for printing
 
         count = 0
         y_offset = 2
         while True:
             # Draw
             stdscr.clear()
-            stdscr.addstr(0, 0, f"Conway's Game of Life: tick {count}")
+            stdscr.addstr(
+                0,
+                0,
+                f"Conway's Game of Life: x_dim: {x_dim}, y_dim: {y_dim}, tick: {count}",
+            )
 
             sg = s_grid.copy()
             sg[grid] = "o"
@@ -82,4 +84,22 @@ def game():
 
 
 if __name__ == "__main__":
-    game()
+    import sys
+    import argparse
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "dim",
+        type=int,
+        nargs="*",
+        default=[20],
+        help="Dimensions of the 2D grid, a single int (for both x and y) or two ints (x and y).",
+    )
+
+    args = parser.parse_args()
+    dim = args.dim
+
+    if len(dim) == 1:
+        game(dim[0], dim[0])
+    else:
+        game(dim[0], dim[1])
