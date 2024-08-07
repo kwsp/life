@@ -42,67 +42,47 @@ def tick(grid: np.ndarray) -> np.ndarray:
     return new_grid
 
 
-def game(x_dim=20, y_dim=20):
+def game(cell_char="o"):
     import time
     import curses
-    from curses import wrapper
 
     def curse_main(stdscr):
         curses.noecho()
-        grid = np.random.randint(0, 2, (y_dim, x_dim)).astype(bool)
-        s_grid = np.tile(" ", (y_dim, x_dim))  # for printing
+        rows, cols = stdscr.getmaxyx()
+        grid = np.random.randint(0, 2, (rows - 1, cols - 1)).astype(bool)
+        s_grid = np.tile(" ", grid.shape)  # for printing
 
-        count = 0
-        y_offset = 2
         while True:
-            # Draw
             stdscr.clear()
-            stdscr.addstr(
-                0,
-                0,
-                f"Conway's Game of Life: x_dim: {x_dim}, y_dim: {y_dim}, tick: {count}",
-            )
 
             sg = s_grid.copy()
-            sg[grid] = "o"
+            sg[grid] = cell_char
+
             for i, row in enumerate(sg):
                 s = " ".join(row)
-                stdscr.addstr(i + y_offset, 0, s)
+                stdscr.addstr(i, 0, s)
 
+            # Draw
             stdscr.refresh()
 
             # update
             grid = tick(grid)
-            count += 1
 
             time.sleep(0.5)
 
     try:
-        wrapper(curse_main)
+        curses.wrapper(curse_main)
     except KeyboardInterrupt:
         print("bye bye")
     except curses.error as e:
-        print("Curses errored (your terminal window is probably too small).")
+        print("Your terminal probably resized, I can't handle this yet :(")
         print(e)
 
 
 if __name__ == "__main__":
     import sys
-    import argparse
 
-    parser = argparse.ArgumentParser()
-    parser.add_argument(
-        "dim",
-        type=int,
-        nargs="*",
-        default=[20],
-        help="Dimensions of the 2D grid, a single int (for both x and y) or two ints (x and y).",
-    )
-
-    args = parser.parse_args()
-    dim = args.dim
-
-    if len(dim) == 1:
-        game(dim[0], dim[0])
+    if len(sys.argv) < 2:
+        game()
     else:
-        game(dim[0], dim[1])
+        game(sys.argv[1][0])
