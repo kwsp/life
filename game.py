@@ -81,6 +81,9 @@ def game(x_dim=20, y_dim=20):
         wrapper(curse_main)
     except KeyboardInterrupt:
         print("bye bye")
+    except curses.error as e:
+        print("Curses errored (your terminal window is probably too small).")
+        print(e)
 
 
 if __name__ == "__main__":
