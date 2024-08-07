@@ -49,8 +49,8 @@ def game(x_dim=20, y_dim=20):
 
     def curse_main(stdscr):
         curses.noecho()
-        grid = np.random.randint(0, 2, (x_dim, y_dim)).astype(bool)
-        s_grid = np.tile(" ", (x_dim, y_dim))  # for printing
+        grid = np.random.randint(0, 2, (y_dim, x_dim)).astype(bool)
+        s_grid = np.tile(" ", (y_dim, x_dim))  # for printing
 
         count = 0
         y_offset = 2
