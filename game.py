@@ -60,40 +60,40 @@ _kernel = np.array(
 )
 
 
-def game(cell_char="o"):
+def game(cell_char: bytes = b"o"):
     import time
     import curses
 
     def curse_main(stdscr):
         curses.noecho()
+        curses.curs_set(False)
         rows, cols = stdscr.getmaxyx()
-        grid = np.random.randint(0, 2, (rows - 1, cols - 1)).astype(bool)
-        s_grid = np.tile(" ", grid.shape)  # for printing
+        cols = cols // 2  # space between each cell
+        grid = np.random.randint(0, 2, (rows, cols)).astype(bool)
+        s_grid = np.tile(b" ", grid.shape)  # for printing
 
         while True:
-            stdscr.clear()
-
+            # update
+            grid = tick_fast(grid)
             sg = s_grid.copy()
             sg[grid] = cell_char
 
-            for i, row in enumerate(sg):
-                s = " ".join(row)
-                stdscr.addstr(i, 0, s)
+            # built screen buffer
+            buf = b"\n".join([b" ".join(row) for row in sg])
 
             # Draw
+            stdscr.clear()
+            stdscr.addstr(buf)
             stdscr.refresh()
 
-            # update
-            grid = tick_fast(grid)
-
-            time.sleep(1)
+            time.sleep(0.5)
 
     try:
         curses.wrapper(curse_main)
     except KeyboardInterrupt:
         print("bye bye")
     except curses.error as e:
-        print("Your terminal probably resized, I can't handle this yet :(")
+        print("Your terminal probably resized, I can't handle that yet :(")
         print(e)
 
 
@@ -103,4 +103,4 @@ if __name__ == "__main__":
     if len(sys.argv) < 2:
         game()
     else:
-        game(sys.argv[1][0])
+        game(bytes(sys.argv[1][0], "utf-8"))
