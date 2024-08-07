@@ -13,6 +13,8 @@ More condensed:
     3. All other live cells die in the next generation. All other dead cells stay dead.
 """
 import numpy as np
+from scipy.signal import convolve2d
+
 
 ALIVE = True
 DEAD = False
@@ -24,7 +26,7 @@ def n_neighbours(grid, i, j) -> int:
     return np.sum(region) - grid[i, j]
 
 
-def tick(grid: np.ndarray) -> np.ndarray:
+def tick_slow(grid: np.ndarray) -> np.ndarray:
     "A tick in the Conway's Game of Life"
     new_grid = grid.copy()
     for i, row in enumerate(grid):
@@ -38,8 +40,24 @@ def tick(grid: np.ndarray) -> np.ndarray:
             else:
                 # All other live cells die in the next generation. All other dead cells stay dead.
                 new_grid[i, j] = DEAD
-
     return new_grid
+
+
+def tick_fast(grid: np.ndarray) -> np.ndarray:
+    new_grid = np.zeros(grid.shape).astype(bool)
+    neighbours = convolve2d(grid, _kernel, "same")
+    new_grid[neighbours == 3] = ALIVE
+    new_grid[np.logical_and(neighbours == 2, grid == ALIVE)] = ALIVE
+    return new_grid
+
+
+_kernel = np.array(
+    [
+        [1, 1, 1],
+        [1, 0, 1],
+        [1, 1, 1],
+    ],
+)
 
 
 def game(cell_char="o"):
@@ -66,9 +84,9 @@ def game(cell_char="o"):
             stdscr.refresh()
 
             # update
-            grid = tick(grid)
+            grid = tick_fast(grid)
 
-            time.sleep(0.5)
+            time.sleep(1)
 
     try:
         curses.wrapper(curse_main)

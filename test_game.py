@@ -1,7 +1,7 @@
 import unittest
 import numpy as np
 
-from game import n_neighbours, tick
+from game import n_neighbours, tick_slow, tick_fast
 
 
 class TestNNeighbours(unittest.TestCase):
@@ -25,9 +25,17 @@ class TestNNeighbours(unittest.TestCase):
 
 
 class TestTick(unittest.TestCase):
-    def test1(self):
+    def test_slow(self):
         grid = np.array([[0, 1, 0, 1], [1, 1, 0, 0], [0, 0, 0, 0], [1, 1, 1, 0]])
-        new_grid = tick(grid)
+        new_grid = tick_slow(grid)
+        new_grid_true = np.array(
+            [[1, 1, 1, 0], [1, 1, 1, 0], [0, 0, 1, 0], [0, 1, 0, 0]]
+        )
+        self.assertTrue(np.all(new_grid == new_grid_true))
+
+    def test_fast(self):
+        grid = np.array([[0, 1, 0, 1], [1, 1, 0, 0], [0, 0, 0, 0], [1, 1, 1, 0]])
+        new_grid = tick_fast(grid)
         new_grid_true = np.array(
             [[1, 1, 1, 0], [1, 1, 1, 0], [0, 0, 1, 0], [0, 1, 0, 0]]
         )
